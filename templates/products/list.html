@@ -21,7 +21,15 @@
 {% endblock %}
 
 {% block main %}
-    <table>
+    <div>
+        <form>
+            <label for="name" class="form-label">Name:</label>
+            <input type="text" name="name" value="{{ name if name else '' }}"
+                   id="name" class="form-control">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+    <table class="table">
         <thead>
         <tr>
             <th>ID</th>

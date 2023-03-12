@@ -1,28 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>SpacePort 0.8{% block title %}{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SpacePort 0.9{% block title %}{% endblock %}</title>
+
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
     {% block head %}{% endblock %}
 </head>
 <body>
-<nav>
-    <ul>
-        <li><a href="{{ url_for('home') }}">Home</a></li>
-        <li><a href="{{ url_for('products_list') }}">Products</a></li>
-        <li><a href="{{ url_for('products_create') }}">Create products</a></li>
-    </ul>
-</nav>
 
-<main>
-    <h1>SpacePort 0.8{% block heading %}{% endblock %}</h1>
+<div class="col-lg-8 mx-auto p-4 py-md-5">
+    <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
+        <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="logo">
+            <span class="fs-4">SpacePort 0.9{% block heading %}{% endblock %}</span>
+        </a>
+    </header>
 
-    {% for message in get_flashed_messages() %}
-        <div><b>{{ message }}</b></div>
-    {% endfor %}
+    <main>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark" aria-label="Fifth navbar example">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbar-main" aria-controls="navbar-main" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-    {% block main %}{% endblock %}
-</main>
+                <div class="collapse navbar-collapse" id="navbar-main">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('products_list') }}">Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('products_create') }}">Create product</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        {% for message in get_flashed_messages() %}
+            <div class="card">
+                <div class="card-header">{{ message }}</div>
+            </div>
+        {% endfor %}
+
+        {% block main %}{% endblock %}
+    </main>
+</div>
+
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+{% block js %}{% endblock %}
 
 </body>
 </html>
