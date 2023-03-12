@@ -1,10 +1,11 @@
 import os
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 
 import repository.products as product_repository
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '31f010a7-4ff4-49f9-9307-9fd04843a846'
 
 os.makedirs(app.instance_path, exist_ok=True)
 product_repository.init(app.instance_path)
@@ -41,9 +42,9 @@ def products_create():
         product['unit_price'] = int(request.form['unit_price'])
         errors = product_repository.validate(product)
 
-        if len(errors) == 0:
-            product_repository.save(product)
-
+        if len(errors) == 0 and \
+                product_repository.save(product) is not None:
+            flash('Product created.')
             return redirect(url_for("products_list"))
 
     return render_template(
@@ -64,8 +65,9 @@ def products_edit(product_id):
         product['unit_price'] = int(request.form['unit_price'])
         errors = product_repository.validate(product)
 
-        if len(errors) == 0:
-            product_repository.save(product)
+        if len(errors) == 0 and \
+                product_repository.save(product) is not None:
+            flash('Product saved.')
 
     return render_template(
         'products/edit.html',
@@ -77,7 +79,9 @@ def products_edit(product_id):
 
 @app.route('/products/<int:product_id>/delete', methods=["POST"])
 def products_delete(product_id):
-    product_repository.delete(product_id)
+    if product_repository.delete(product_id) is not None:
+        flash('Product deleted.')
+
     return redirect(url_for("products_list"))
 
 

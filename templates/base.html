@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SpacePort 0.7{% block title %}{% endblock %}</title>
+    <title>SpacePort 0.8{% block title %}{% endblock %}</title>
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -15,7 +15,12 @@
 </nav>
 
 <main>
-    <h1>SpacePort 0.7{% block heading %}{% endblock %}</h1>
+    <h1>SpacePort 0.8{% block heading %}{% endblock %}</h1>
+
+    {% for message in get_flashed_messages() %}
+        <div><b>{{ message }}</b></div>
+    {% endfor %}
+
     {% block main %}{% endblock %}
 </main>
 
