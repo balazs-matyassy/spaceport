@@ -46,7 +46,33 @@ def products_create():
 
             return redirect(url_for("products_list"))
 
-    return render_template('products/create.html', product=product, errors=errors)
+    return render_template(
+        'products/edit.html',
+        product=product,
+        errors=errors,
+        create=True
+    )
+
+
+@app.route('/products/<int:product_id>/edit', methods=("GET", "POST"))
+def products_edit(product_id):
+    product = product_repository.find_one_by_id(product_id)
+    errors = []
+
+    if request.method == "POST":
+        product['name'] = request.form['name']
+        product['unit_price'] = int(request.form['unit_price'])
+        errors = product_repository.validate(product)
+
+        if len(errors) == 0:
+            product_repository.save(product)
+
+    return render_template(
+        'products/edit.html',
+        product=product,
+        errors=errors,
+        create=False
+    )
 
 
 if __name__ == '__main__':
