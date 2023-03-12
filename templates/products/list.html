@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SpacePort 0.2 - Products</title>
+</head>
+<body>
+<nav>
+    <ul>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a href="{{ url_for('products_list') }}">Products</a></li>
+    </ul>
+</nav>
+
+<main>
+    <h1>SpacePort 0.2 - Products</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Unit price</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for product in products %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.unit_price }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+</main>
+
+</body>
+</html>
