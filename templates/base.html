@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SpacePort 0.7{% block title %}{% endblock %}</title>
+    {% block head %}{% endblock %}
+</head>
+<body>
+<nav>
+    <ul>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a href="{{ url_for('products_list') }}">Products</a></li>
+        <li><a href="{{ url_for('products_create') }}">Create products</a></li>
+    </ul>
+</nav>
+
+<main>
+    <h1>SpacePort 0.7{% block heading %}{% endblock %}</h1>
+    {% block main %}{% endblock %}
+</main>
+
+</body>
+</html>

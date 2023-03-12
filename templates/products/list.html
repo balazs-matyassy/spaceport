@@ -1,9 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>SpacePort 0.6 - Products</title>
+{% extends 'base.html' %}
 
+{% block title %}
+    - Products
+{% endblock %}
+
+{% block heading %}
+    - Products
+{% endblock %}
+
+{% block head %}
     <script>
         function deleteProduct() {
             if (confirm('Delete product?')) {
@@ -13,22 +18,9 @@
             return false;
         }
     </script>
-</head>
-<body>
-<nav>
-    <ul>
-        <li><a href="{{ url_for('home') }}">Home</a></li>
-        <li><a href="{{ url_for('products_list') }}">Products</a></li>
-        <li><a href="{{ url_for('products_create') }}">Create products</a></li>
-    </ul>
-    <form>
-        <input type="text" name="name" value="{{ name if name else '' }}">
-        <button type="submit">Search</button>
-    </form>
-</nav>
+{% endblock %}
 
-<main>
-    <h1>SpacePort 0.6 - Products</h1>
+{% block main %}
     <table>
         <thead>
         <tr>
@@ -55,7 +47,4 @@
         </tbody>
 
     </table>
-</main>
-
-</body>
-</html>
+{% endblock %}

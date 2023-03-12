@@ -1,22 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>SpacePort 0.6</title>
-</head>
-<body>
-<nav>
-    <ul>
-        <li><a href="{{ url_for('home') }}">Home</a></li>
-        <li><a href="{{ url_for('products_list') }}">Products</a></li>
-        <li><a href="{{ url_for('products_create') }}">Create products</a></li>
-    </ul>
-</nav>
+{% extends 'base.html' %}
 
-<main>
-    <h1>SpacePort 0.6</h1>
+{% block main %}
     <p>Welcome!</p>
-</main>
-
-</body>
-</html>
+{% endblock %}
