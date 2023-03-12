@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 import repository.products as product_repository
 
@@ -18,8 +18,14 @@ def home():
 
 @app.route('/products')
 def products_list():
-    products = product_repository.find_all()
-    return render_template('products/list.html', products=products)
+    name = request.args.get('name')
+
+    if name is not None:
+        products = product_repository.find_all_by_name(name)
+    else:
+        products = product_repository.find_all()
+
+    return render_template('products/list.html', products=products, name=name)
 
 
 if __name__ == '__main__':

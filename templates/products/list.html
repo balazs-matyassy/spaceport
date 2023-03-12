@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SpacePort 0.2 - Products</title>
+    <title>SpacePort 0.3 - Products</title>
 </head>
 <body>
 <nav>
@@ -10,10 +10,14 @@
         <li><a href="{{ url_for('home') }}">Home</a></li>
         <li><a href="{{ url_for('products_list') }}">Products</a></li>
     </ul>
+    <form>
+        <input type="text" name="name" value="{{ name if name else '' }}">
+        <button type="submit">Search</button>
+    </form>
 </nav>
 
 <main>
-    <h1>SpacePort 0.2 - Products</h1>
+    <h1>SpacePort 0.3 - Products</h1>
     <table>
         <thead>
         <tr>

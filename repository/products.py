@@ -35,6 +35,20 @@ def find_all(path=None, delimiter=None):
         return products
 
 
+def find_all_by_name(name, path=None, delimiter=None):
+    path = _get_path(path)
+    delimiter = _get_delimiter(delimiter)
+
+    products = find_all(path, delimiter)
+    filtered = []
+
+    for product in products:
+        if name.strip().lower() in product['name'].lower():
+            filtered.append(product)
+
+    return filtered
+
+
 def find_one_by_id(product_id, path=None, delimiter=None):
     path = _get_path(path)
     delimiter = _get_delimiter(delimiter)
