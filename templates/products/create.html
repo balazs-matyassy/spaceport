@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SpacePort 0.4 - Create product</title>
+</head>
+<body>
+<nav>
+    <ul>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a href="{{ url_for('products_list') }}">Products</a></li>
+        <li><a href="{{ url_for('products_create') }}">Create product</a></li>
+    </ul>
+</nav>
+
+<main>
+    <h1>SpacePort 0.4 - Create product</h1>
+    <form method="post">
+        <table>
+            <tr>
+                <th><label for="name">Name:</label></th>
+                <td><input type="text" name="name" value="{{ product.name }}" id="name"></td>
+            </tr>
+            <tr>
+                <th><label for="unit_price">Unit price:</label></th>
+                <td><input type="number" name="unit_price" value="{{ product.unit_price }}" id="unit_price"></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button type="submit">Create</button></td>
+            </tr>
+        </table>
+        {% if errors and errors|length > 0 %}
+            <h2>Errors:</h2>
+            <ul>
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </form>
+</main>
+
+</body>
+</html>
