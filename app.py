@@ -75,5 +75,11 @@ def products_edit(product_id):
     )
 
 
+@app.route('/products/<int:product_id>/delete', methods=["POST"])
+def products_delete(product_id):
+    product_repository.delete(product_id)
+    return redirect(url_for("products_list"))
+
+
 if __name__ == '__main__':
     app.run()
