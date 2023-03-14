@@ -21,21 +21,21 @@
 {% endblock %}
 
 {% block main %}
-    <div>
-        <form>
-            <label for="name" class="form-label">Name:</label>
-            <input type="text" name="name" value="{{ name if name else '' }}"
-                   id="name" class="form-control">
-            <button type="submit" class="btn btn-primary">Search</button>
-        </form>
-    </div>
+    <form>
+        <label for="name" class="form-label">Name:</label>
+        <input type="text" name="name" value="{{ name if name else '' }}"
+               id="name" class="form-control">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
     <table class="table">
         <thead>
         <tr>
             <th>ID</th>
             <th>Name</th>
             <th>Unit price</th>
-            <th colspan="2"></th>
+            {% if g.user %}
+                <th colspan="2"></th>
+            {% endif %}
         </tr>
         </thead>
         <tbody>
@@ -44,12 +44,14 @@
                 <td>{{ product.id }}</td>
                 <td>{{ product.name }}</td>
                 <td>{{ product.unit_price }}</td>
-                <td><a href="{{ url_for('products_edit', product_id=product.id) }}">Edit</a></td>
-                <td>
-                    <form action="{{ url_for('products_delete', product_id=product.id) }}" method="post">
-                        <a href="#" onclick="deleteProduct.call(this)">Delete</a>
-                    </form>
-                </td>
+                {% if g.user %}
+                    <td><a href="{{ url_for('products_edit', product_id=product.id) }}">Edit</a></td>
+                    <td>
+                        <form action="{{ url_for('products_delete', product_id=product.id) }}" method="post">
+                            <a href="#" onclick="deleteProduct.call(this)">Delete</a>
+                        </form>
+                    </td>
+                {% endif %}
             </tr>
         {% endfor %}
         </tbody>

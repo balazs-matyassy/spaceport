@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    - Login
+{% endblock %}
+
+{% block heading %}
+    - Login
+{% endblock %}
+
+{% block main %}
+    <form method="post">
+        <table>
+            <tr>
+                <th><label for="username" class="form-label">Username:</label></th>
+                <td>
+                    <input type="text" name="username" value="{{ user.username }}"
+                           id="username" class="form-control">
+                </td>
+            </tr>
+            <tr>
+                <th><label for="password" class="form-label">Password:</label></th>
+                <td>
+                    <input type="password" name="password" value="{{ user.password }}"
+                           id="password" class="form-control">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+{% endblock %}
