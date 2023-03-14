@@ -4,6 +4,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash, current_app, session, g
 
 import repository.products as product_repository
+from model.product import Product
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '31f010a7-4ff4-49f9-9307-9fd04843a846'
@@ -54,15 +55,13 @@ def products_list():
 @app.route('/products/create', methods=("GET", "POST"))
 @fully_authenticated
 def products_create():
-    product = {
-        'name': '',
-        'unit_price': 0
-    }
+    product = Product(None, '', 0, 0)
     errors = []
 
     if request.method == "POST":
-        product['name'] = request.form['name']
-        product['unit_price'] = int(request.form['unit_price'])
+        product.name = request.form['name']
+        product.unit_price = int(request.form['unit_price'])
+        product.discount = int(request.form['discount'])
         errors = product_repository.validate(product)
 
         if len(errors) == 0 and \
@@ -85,8 +84,9 @@ def products_edit(product_id):
     errors = []
 
     if request.method == "POST":
-        product['name'] = request.form['name']
-        product['unit_price'] = int(request.form['unit_price'])
+        product.name = request.form['name']
+        product.unit_price = int(request.form['unit_price'])
+        product.discount = int(request.form['discount'])
         errors = product_repository.validate(product)
 
         if len(errors) == 0 and \

@@ -1,5 +1,7 @@
 import os
 
+from model.product import Product
+
 default_path = None
 default_delimiter = None
 
@@ -43,7 +45,7 @@ def find_all_by_name(name, path=None, delimiter=None):
     filtered = []
 
     for product in products:
-        if name.strip().lower() in product['name'].lower():
+        if name.strip().lower() in product.name.lower():
             filtered.append(product)
 
     return filtered
@@ -56,7 +58,7 @@ def find_one_by_id(product_id, path=None, delimiter=None):
     products = find_all(path, delimiter)
 
     for product in products:
-        if product['id'] == product_id:
+        if product.product_id == product_id:
             return product
 
     return None
@@ -66,7 +68,7 @@ def save(product, path=None, delimiter=None):
     path = _get_path(path)
     delimiter = _get_delimiter(delimiter)
 
-    if 'id' not in product or product['id'] is None:
+    if product.product_id is None:
         # CREATE
         return _create(product, path, delimiter)
     else:
@@ -83,7 +85,7 @@ def delete(product_id, path=None, delimiter=None):
     deleted_product = None
 
     for product in products:
-        if product['id'] != product_id:
+        if product.product_id != product_id:
             filtered.append(product)
         else:
             deleted_product = product
@@ -97,15 +99,15 @@ def delete(product_id, path=None, delimiter=None):
 def validate(product):
     errors = []
 
-    if 'name' not in product \
-            or product['name'] is None \
-            or len(product['name'].strip()) == 0:
+    if product.name is None \
+            or len(product.name.strip()) == 0:
         errors.append('Name missing.')
 
-    if 'unit_price' not in product \
-            or not isinstance(product['unit_price'], int) \
-            or product['unit_price'] < 0:
+    if product.unit_price < 0:
         errors.append('Unit price must be a non-negative number.')
+
+    if product.discount < 0 or product.discount > 100:
+        errors.append('Unit price must be a number between 0 and 100.')
 
     return errors
 
@@ -113,31 +115,27 @@ def validate(product):
 def _get_header(delimiter):
     return 'id' \
         + delimiter + 'name' \
-        + delimiter + 'unit_price'
+        + delimiter + 'unit_price' \
+        + delimiter + 'discount'
 
 
 def _line_to_entity(line, delimiter):
     line = line.strip()
     parts = line.split(delimiter)
 
-    if len(parts) >= 3:
-        return {
-            'id': int(parts[0].strip()),
-            'name': parts[1].strip(),
-            'unit_price': int(parts[2].strip())
-        }
+    if len(parts) >= 4:
+        return Product(int(parts[0].strip()), parts[1].strip(), int(parts[2].strip()), int(parts[3].strip()))
+    elif len(parts) >= 3:
+        return Product(None, parts[0].strip(), int(parts[1].strip()), int(parts[2].strip()))
     else:
-        return {
-            'id': None,
-            'name': parts[0].strip(),
-            'unit_price': int(parts[1].strip())
-        }
+        return Product(None, parts[0].strip(), int(parts[1].strip()))
 
 
 def _entity_to_line(product, delimiter):
-    return str(product['id']) \
-        + delimiter + product['name'] \
-        + delimiter + str(product['unit_price'])
+    return str(product.product_id) \
+        + delimiter + product.name \
+        + delimiter + str(product.unit_price) \
+        + delimiter + str(product.discount)
 
 
 def _create(product, path, delimiter):
@@ -145,10 +143,10 @@ def _create(product, path, delimiter):
     max_id = 0
 
     for stored_product in products:
-        if stored_product['id'] > max_id:
-            max_id = stored_product['id']
+        if stored_product.product_id > max_id:
+            max_id = stored_product.product_id
 
-    product['id'] = max_id + 1
+    product.product_id = max_id + 1
 
     with open(path, 'a', encoding='utf-8') as file:
         line = _entity_to_line(product, delimiter)
@@ -162,7 +160,7 @@ def _update(product, path, delimiter):
     updated_product = None
 
     for i in range(len(products)):
-        if products[i]['id'] == product['id']:
+        if products[i].product_id == product.product_id:
             products[i] = product
             updated_product = products[i]
             break
