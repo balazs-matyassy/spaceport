@@ -41,7 +41,7 @@ def products_list():
     name = request.args.get('name')
 
     if name is not None:
-        products = product_repository.find_all_by_name(name)
+        products = product_repository.find_all_by_column('name', name)
     else:
         products = product_repository.find_all()
 
@@ -116,7 +116,7 @@ def users_list():
     username = request.args.get('username')
 
     if username is not None:
-        users = user_repository.find_all_by_username(username)
+        users = user_repository.find_all_by_column('username', username)
     else:
         users = user_repository.find_all()
 
@@ -200,7 +200,7 @@ def login():
         password = request.form['password']
 
         user_repository = get_user_repository()
-        user = user_repository.find_one_by_username(username)
+        user = user_repository.find_one_by_column('username', username)
 
         if user is not None and check_password_hash(user.password, password):
             session.clear()

@@ -1,69 +1,10 @@
 from model.user import User
+from repository.repository import Repository
 
 
-class UserRepository:
+class UserRepository(Repository):
     def __init__(self, db, table='user'):
-        self.db = db
-        self.table = table
-
-    def find_all(self):
-        query = f"""
-            SELECT *
-                FROM {self.table}
-                ORDER BY id
-        """
-        result = self.db.execute(query).fetchall()
-
-        return [self._row_to_entity(row) for row in result]
-
-    def find_all_by_username(self, username):
-        query = f"""
-            SELECT *
-                FROM {self.table}
-                WHERE username LIKE ?
-                ORDER BY id
-        """
-        result = self.db.execute(query, ('%' + username + '%',)).fetchall()
-
-        return [self._row_to_entity(row) for row in result]
-
-    def find_one_by_id(self, user_id):
-        query = f"""
-            SELECT *
-                FROM {self.table}
-                WHERE id = ?
-        """
-        row = self.db.execute(query, (user_id,)).fetchone()
-
-        return self._row_to_entity(row) if row is not None else None
-
-    def find_one_by_username(self, username):
-        query = f"""
-            SELECT *
-                FROM {self.table}
-                WHERE username = ?
-        """
-        row = self.db.execute(query, (username,)).fetchone()
-
-        return self._row_to_entity(row) if row is not None else None
-
-    def save(self, user):
-        if user.user_id is None:
-            # CREATE
-            return self._create(user)
-        else:
-            # UPDATE
-            return self._update(user)
-
-    def delete(self, user_id):
-        query = f"""
-            DELETE FROM {self.table}
-                WHERE id = ?
-        """
-        rowcount = self.db.execute(query, (user_id,)).rowcount
-        self.db.commit()
-
-        return rowcount
+        super().__init__(db, table)
 
     def validate(self, user):
         errors = []

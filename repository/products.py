@@ -1,59 +1,10 @@
 from model.product import Product
+from repository.repository import Repository
 
 
-class ProductRepository:
+class ProductRepository(Repository):
     def __init__(self, db, table='product'):
-        self.db = db
-        self.table = table
-
-    def find_all(self):
-        query = f"""
-            SELECT *
-                FROM {self.table}
-                ORDER BY id
-        """
-        result = self.db.execute(query).fetchall()
-
-        return [self._row_to_entity(row) for row in result]
-
-    def find_all_by_name(self, name):
-        query = f"""
-            SELECT *
-                FROM {self.table}
-                WHERE name LIKE ?
-                ORDER BY id
-        """
-        result = self.db.execute(query, ('%' + name + '%',)).fetchall()
-
-        return [self._row_to_entity(row) for row in result]
-
-    def find_one_by_id(self, product_id):
-        query = f"""
-            SELECT *
-                FROM {self.table}
-                WHERE id = ?
-        """
-        row = self.db.execute(query, (product_id,)).fetchone()
-
-        return self._row_to_entity(row) if row is not None else None
-
-    def save(self, product):
-        if product.product_id is None:
-            # CREATE
-            return self._create(product)
-        else:
-            # UPDATE
-            return self._update(product)
-
-    def delete(self, product_id):
-        query = f"""
-            DELETE FROM {self.table}
-                WHERE id = ?
-        """
-        rowcount = self.db.execute(query, (product_id,)).rowcount
-        self.db.commit()
-
-        return rowcount
+        super().__init__(db, table)
 
     def validate(self, product):
         errors = []
