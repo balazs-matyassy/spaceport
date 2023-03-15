@@ -3,8 +3,7 @@ import os
 
 from flask import Flask, render_template, request, redirect, url_for, flash, current_app, session, g
 
-import repository.products as product_repository
-from db import close_db, init_db_command, get_db
+from db import close_db, init_db_command, get_product_repository
 from model.product import Product
 
 app = Flask(__name__)
@@ -17,7 +16,6 @@ app.teardown_appcontext(close_db)
 app.cli.add_command(init_db_command)
 
 os.makedirs(app.instance_path, exist_ok=True)
-product_repository.init()
 
 
 def fully_authenticated(view):
@@ -47,6 +45,7 @@ def home():
 
 @app.route('/products')
 def products_list():
+    product_repository = get_product_repository()
     name = request.args.get('name')
 
     if name is not None:
@@ -60,6 +59,7 @@ def products_list():
 @app.route('/products/create', methods=("GET", "POST"))
 @fully_authenticated
 def products_create():
+    product_repository = get_product_repository()
     product = Product(None, '', 0, 0)
     errors = []
 
@@ -85,6 +85,7 @@ def products_create():
 @app.route('/products/<int:product_id>/edit', methods=("GET", "POST"))
 @fully_authenticated
 def products_edit(product_id):
+    product_repository = get_product_repository()
     product = product_repository.find_one_by_id(product_id)
     errors = []
 
@@ -109,6 +110,7 @@ def products_edit(product_id):
 @app.route('/products/<int:product_id>/delete', methods=["POST"])
 @fully_authenticated
 def products_delete(product_id):
+    product_repository = get_product_repository()
     if product_repository.delete(product_id) is not None:
         flash('Product deleted.')
 

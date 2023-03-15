@@ -4,6 +4,8 @@ import sqlite3
 import click
 from flask import g, current_app
 
+from repository.products import ProductRepository
+
 
 def get_db():
     if 'db' not in g:
@@ -41,3 +43,11 @@ def init_db():
 def init_db_command():
     init_db()
     click.echo('Database initialized.')
+
+
+def get_product_repository():
+    if 'product_repository' not in g:
+        db = get_db()
+        g.product_repository = ProductRepository(db)
+
+    return g.product_repository
