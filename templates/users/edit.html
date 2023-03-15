@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    - {{ 'Create' if create else 'Edit' }} user
+{% endblock %}
+
+{% block heading %}
+    - {{ 'Create' if create else 'Edit' }} user
+{% endblock %}
+
+{% block main %}
+    <form method="post">
+        <table>
+            <tr>
+                <th><label for="username" class="form-label">Username:</label></th>
+                <td>
+                    <input type="text" name="username" value="{{ user.username }}"
+                           id="username" class="form-control" required>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="password" class="form-label">Password:</label></th>
+                <td>
+                    {% if create %}
+                        <input type="password" name="password" value="{{ user.password }}"
+                               id="password" class="form-control" required>
+                    {% else %}
+                        <input type="password" name="password"
+                               id="password" class="form-control">
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th><label for="role" class="form-label">Role:</label></th>
+                <td>
+                    <select name="role" id="role" class="form-control" required>
+                        <option{{ ' selected' if not user.admin else '' }}>USER</option>
+                        <option{{ ' selected' if user.admin else '' }}>ADMIN</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <button type="submit" class="btn btn-primary">
+                        {% if create %}
+                            Create
+                        {% else %}
+                            Save
+                        {% endif %}
+                    </button>
+                </td>
+            </tr>
+        </table>
+        {% if errors and errors|length > 0 %}
+            <h2>Errors:</h2>
+            <ul>
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </form>
+{% endblock %}

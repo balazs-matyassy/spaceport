@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS product;
 
 CREATE TABLE product (
@@ -6,3 +7,13 @@ CREATE TABLE product (
   unit_price INTEGER NOT NULL,
   discount INTEGER NOT NULL
 );
+
+CREATE TABLE user (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  role TEXT NOT NULL
+);
+
+INSERT INTO user (username, password, role)
+    VALUES ('admin', 'admin', 'ADMIN');

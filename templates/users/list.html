@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    - Users
+{% endblock %}
+
+{% block heading %}
+    - Users
+{% endblock %}
+
+{% block head %}
+    <script>
+        function deleteUser() {
+            if (confirm('Delete user?')) {
+                this.closest('form').submit();
+            }
+
+            return false;
+        }
+    </script>
+{% endblock %}
+
+{% block main %}
+    <div>
+        <form>
+            <label for="username" class="form-label">Username:</label>
+            <input type="text" name="username" value="{{ username if username else '' }}"
+                   id="username" class="form-control">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th colspan="2"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.user_id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ 'ADMIN' if user.admin else 'USER' }}</td>
+                <td><a href="{{ url_for('users_edit', user_id=user.user_id) }}">Edit</a></td>
+                <td>
+                    <form action="{{ url_for('users_delete', user_id=user.user_id) }}" method="post">
+                        <a href="#" onclick="deleteUser.call(this)">Delete</a>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+{% endblock %}

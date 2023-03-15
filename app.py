@@ -1,16 +1,15 @@
-import functools
 import os
 
 from flask import Flask, render_template, request, redirect, url_for, flash, current_app, session, g
 
-from db import close_db, init_db_command, get_product_repository
+from auth import fully_authenticated, admin_granted
+from db import close_db, init_db_command, get_product_repository, get_user_repository
 from model.product import Product
+from model.user import User
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '31f010a7-4ff4-49f9-9307-9fd04843a846'
 app.config['DATABASE'] = os.path.join(app.instance_path, 'spaceport.sqlite')
-app.config['USERNAME'] = 'admin'
-app.config['PASSWORD'] = 'abc123'
 
 app.teardown_appcontext(close_db)
 app.cli.add_command(init_db_command)
@@ -18,21 +17,13 @@ app.cli.add_command(init_db_command)
 os.makedirs(app.instance_path, exist_ok=True)
 
 
-def fully_authenticated(view):
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if g.user is None:
-            return redirect(url_for('login'))
-
-        return view(**kwargs)
-
-    return wrapped_view
-
-
 @app.before_request
 def load_current_user():
-    if session.get('username') is not None:
-        g.user = {'username': session['username']}
+    user_id = session.get('user_id')
+
+    if user_id is not None:
+        user_repository = get_user_repository()
+        g.user = user_repository.find_one_by_id(user_id)
     else:
         g.user = None
 
@@ -117,28 +108,103 @@ def products_delete(product_id):
     return redirect(url_for("products_list"))
 
 
-@app.route('/login', methods=("GET", "POST"))
-def login():
-    user = {
-        'username': '',
-        'password': ''
-    }
+@app.route('/users')
+@admin_granted
+def users_list():
+    user_repository = get_user_repository()
+    username = request.args.get('username')
+
+    if username is not None:
+        users = user_repository.find_all_by_username(username)
+    else:
+        users = user_repository.find_all()
+
+    return render_template('users/list.html', users=users, username=username)
+
+
+@app.route('/users/create', methods=("GET", "POST"))
+@admin_granted
+def users_create():
+    user_repository = get_user_repository()
+    user = User(None, '', '', 'USER')
+    errors = []
 
     if request.method == "POST":
-        user['username'] = request.form['username'].strip()
-        user['password'] = request.form['password']
+        user.username = request.form['username']
+        user.password = request.form['password']
+        user.admin = request.form['role'].upper() == 'ADMIN'
+        errors = user_repository.validate(user)
 
-        if user['username'].lower() == current_app.config['USERNAME'].lower() \
-                and user['password'] == current_app.config['PASSWORD']:
+        if len(errors) == 0 and \
+                user_repository.save(user) is not None:
+            flash('User created.')
+            return redirect(url_for("users_list"))
+
+    return render_template(
+        'users/edit.html',
+        user=user,
+        errors=errors,
+        create=True
+    )
+
+
+@app.route('/users/<int:user_id>/edit', methods=("GET", "POST"))
+@admin_granted
+def users_edit(user_id):
+    user_repository = get_user_repository()
+    user = user_repository.find_one_by_id(user_id)
+    errors = []
+
+    if request.method == "POST":
+        user.username = request.form['username']
+        user.password = request.form['password']
+        user.admin = request.form['role'].upper() == 'ADMIN'
+        errors = user_repository.validate(user)
+
+        if len(errors) == 0 and \
+                user_repository.save(user) is not None:
+            flash('User saved.')
+
+    return render_template(
+        'users/edit.html',
+        user=user,
+        errors=errors,
+        create=False
+    )
+
+
+@app.route('/users/<int:user_id>/delete', methods=["POST"])
+@admin_granted
+def users_delete(user_id):
+    user_repository = get_user_repository()
+    if user_repository.delete(user_id) is not None:
+        flash('User deleted.')
+
+    return redirect(url_for("users_list"))
+
+
+@app.route('/login', methods=("GET", "POST"))
+def login():
+    username = ''
+    password = ''
+
+    if request.method == "POST":
+        username = request.form['username'].strip()
+        password = request.form['password']
+
+        user_repository = get_user_repository()
+        user = user_repository.find_one_by_username(username)
+
+        if user is not None and user.password == password:
             session.clear()
-            session['username'] = user['username']
+            session['user_id'] = user.user_id
             flash('Login successful.')
 
             return redirect(url_for('home'))
         else:
             flash('Wrong username or password.')
 
-    return render_template('login.html', user=user)
+    return render_template('login.html', username=username, password=password)
 
 
 @app.route('/logout')

@@ -5,6 +5,7 @@ import click
 from flask import g, current_app
 
 from repository.products import ProductRepository
+from repository.users import UserRepository
 
 
 def get_db():
@@ -51,3 +52,11 @@ def get_product_repository():
         g.product_repository = ProductRepository(db)
 
     return g.product_repository
+
+
+def get_user_repository():
+    if 'user_repository' not in g:
+        db = get_db()
+        g.user_repository = UserRepository(db)
+
+    return g.user_repository
