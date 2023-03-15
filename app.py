@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, render_template, request, redirect, url_for, flash, current_app, session, g
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from auth import fully_authenticated, admin_granted
 from db import close_db, init_db_command, get_product_repository, get_user_repository
@@ -131,8 +132,11 @@ def users_create():
 
     if request.method == "POST":
         user.username = request.form['username']
-        user.password = request.form['password']
         user.admin = request.form['role'].upper() == 'ADMIN'
+
+        if len(request.form['password']) > 0:
+            user.password = generate_password_hash(request.form['password'])
+
         errors = user_repository.validate(user)
 
         if len(errors) == 0 and \
@@ -157,8 +161,11 @@ def users_edit(user_id):
 
     if request.method == "POST":
         user.username = request.form['username']
-        user.password = request.form['password']
         user.admin = request.form['role'].upper() == 'ADMIN'
+
+        if len(request.form['password']) > 0:
+            user.password = generate_password_hash(request.form['password'])
+
         errors = user_repository.validate(user)
 
         if len(errors) == 0 and \
@@ -195,7 +202,7 @@ def login():
         user_repository = get_user_repository()
         user = user_repository.find_one_by_username(username)
 
-        if user is not None and user.password == password:
+        if user is not None and check_password_hash(user.password, password):
             session.clear()
             session['user_id'] = user.user_id
             flash('Login successful.')

@@ -16,4 +16,8 @@ CREATE TABLE user (
 );
 
 INSERT INTO user (username, password, role)
-    VALUES ('admin', 'admin', 'ADMIN');
+    VALUES (
+            'admin',
+            'pbkdf2:sha256:260000$oq5tjm5l8QlugwnP$802307ecfc0b454a4fd5ba63930a03255170056fb5e3610690a56cd9bdb8b7c5',
+            'ADMIN'
+    );

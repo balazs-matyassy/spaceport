@@ -21,13 +21,8 @@
             <tr>
                 <th><label for="password" class="form-label">Password:</label></th>
                 <td>
-                    {% if create %}
-                        <input type="password" name="password" value="{{ user.password }}"
-                               id="password" class="form-control" required>
-                    {% else %}
-                        <input type="password" name="password"
-                               id="password" class="form-control">
-                    {% endif %}
+                    <input type="password" name="password"
+                               id="password" class="form-control"{{ ' required' if create else '' }}>
                 </td>
             </tr>
             <tr>
