@@ -44,9 +44,9 @@
                 <td>{{ user.user_id }}</td>
                 <td>{{ user.username }}</td>
                 <td>{{ 'ADMIN' if user.admin else 'USER' }}</td>
-                <td><a href="{{ url_for('users_edit', user_id=user.user_id) }}">Edit</a></td>
+                <td><a href="{{ url_for('users.users_edit', user_id=user.user_id) }}">Edit</a></td>
                 <td>
-                    <form action="{{ url_for('users_delete', user_id=user.user_id) }}" method="post">
+                    <form action="{{ url_for('users.users_delete', user_id=user.user_id) }}" method="post">
                         <a href="#" onclick="deleteUser.call(this)">Delete</a>
                     </form>
                 </td>
