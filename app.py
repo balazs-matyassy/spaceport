@@ -4,15 +4,20 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash, current_app, session, g
 
 import repository.products as product_repository
+from db import close_db, init_db_command, get_db
 from model.product import Product
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '31f010a7-4ff4-49f9-9307-9fd04843a846'
+app.config['DATABASE'] = os.path.join(app.instance_path, 'spaceport.sqlite')
 app.config['USERNAME'] = 'admin'
 app.config['PASSWORD'] = 'abc123'
 
+app.teardown_appcontext(close_db)
+app.cli.add_command(init_db_command)
+
 os.makedirs(app.instance_path, exist_ok=True)
-product_repository.init(app.instance_path)
+product_repository.init()
 
 
 def fully_authenticated(view):

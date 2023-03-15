@@ -1,99 +1,80 @@
-import os
-
+from db import get_db
 from model.product import Product
 
-default_path = None
-default_delimiter = None
+default_table = None
 
 
-def init(folder, filename='products.csv', delimiter=';'):
-    global default_path
-    global default_delimiter
-
-    default_path = os.path.join(folder, filename)
-    default_delimiter = delimiter
-
-    if not os.path.isfile(default_path):
-        with open(default_path, 'w', encoding='utf-8') as file:
-            header = _get_header(default_delimiter)
-            file.write(f'{header}\n')
-
-    return default_path
+def init(table='product'):
+    global default_table
+    default_table = table
 
 
-def find_all(path=None, delimiter=None):
-    path = _get_path(path)
-    delimiter = _get_delimiter(delimiter)
+def find_all(table=None):
+    table = _get_table(table)
+    db = get_db()
 
-    products = []
+    query = f"""
+        SELECT *
+            FROM {table}
+            ORDER BY id
+    """
+    result = db.execute(query).fetchall()
 
-    with open(path, encoding='utf-8') as file:
-        file.readline()
-
-        for line in file:
-            product = _line_to_entity(line, delimiter)
-            products.append(product)
-
-        return products
+    return [_row_to_entity(row) for row in result]
 
 
-def find_all_by_name(name, path=None, delimiter=None):
-    path = _get_path(path)
-    delimiter = _get_delimiter(delimiter)
+def find_all_by_name(name, table=None):
+    table = _get_table(table)
+    db = get_db()
 
-    products = find_all(path, delimiter)
-    filtered = []
+    query = f"""
+        SELECT *
+            FROM {table}
+            WHERE name LIKE ?
+            ORDER BY id
+    """
+    result = db.execute(query, ('%' + name + '%',)).fetchall()
 
-    for product in products:
-        if name.strip().lower() in product.name.lower():
-            filtered.append(product)
-
-    return filtered
-
-
-def find_one_by_id(product_id, path=None, delimiter=None):
-    path = _get_path(path)
-    delimiter = _get_delimiter(delimiter)
-
-    products = find_all(path, delimiter)
-
-    for product in products:
-        if product.product_id == product_id:
-            return product
-
-    return None
+    return [_row_to_entity(row) for row in result]
 
 
-def save(product, path=None, delimiter=None):
-    path = _get_path(path)
-    delimiter = _get_delimiter(delimiter)
+def find_one_by_id(product_id, table=None):
+    table = _get_table(table)
+    db = get_db()
+
+    query = f"""
+        SELECT *
+            FROM {table}
+            WHERE id = ?
+    """
+    row = db.execute(query, (product_id,)).fetchone()
+
+    return _row_to_entity(row) if row is not None else None
+
+
+def save(product, table=None):
+    table = _get_table(table)
 
     if product.product_id is None:
         # CREATE
-        return _create(product, path, delimiter)
+        return _create(product, table)
     else:
         # UPDATE
-        return _update(product, path, delimiter)
+        return _update(product, table)
 
 
-def delete(product_id, path=None, delimiter=None):
-    path = _get_path(path)
-    delimiter = _get_delimiter(delimiter)
+def delete(product_id, table=None):
+    table = _get_table(table)
+    db = get_db()
 
-    products = find_all(path, delimiter)
-    filtered = []
-    deleted_product = None
+    query = f"""
+        DELETE FROM {table}
+            WHERE id = ?
+    """
+    rowcount = db.execute(query, (product_id,)).rowcount
+    db.commit()
 
-    for product in products:
-        if product.product_id != product_id:
-            filtered.append(product)
-        else:
-            deleted_product = product
-
-    if deleted_product is not None:
-        _overwrite(filtered, path, delimiter)
-
-    return deleted_product
+    return rowcount
 
 
 def validate(product):
@@ -112,78 +93,47 @@ def validate(product):
     return errors
 
 
-def _get_header(delimiter):
-    return 'id' \
-        + delimiter + 'name' \
-        + delimiter + 'unit_price' \
-        + delimiter + 'discount'
+def _row_to_entity(row):
+    return Product(row['id'], row['name'], row['unit_price'], row['discount'])
 
 
-def _line_to_entity(line, delimiter):
-    line = line.strip()
-    parts = line.split(delimiter)
+def _create(product, table):
+    db = get_db()
 
-    if len(parts) >= 4:
-        return Product(int(parts[0].strip()), parts[1].strip(), int(parts[2].strip()), int(parts[3].strip()))
-    elif len(parts) >= 3:
-        return Product(None, parts[0].strip(), int(parts[1].strip()), int(parts[2].strip()))
-    else:
-        return Product(None, parts[0].strip(), int(parts[1].strip()))
-
-
-def _entity_to_line(product, delimiter):
-    return str(product.product_id) \
-        + delimiter + product.name \
-        + delimiter + str(product.unit_price) \
-        + delimiter + str(product.discount)
-
-
-def _create(product, path, delimiter):
-    products = find_all(path, delimiter)
-    max_id = 0
-
-    for stored_product in products:
-        if stored_product.product_id > max_id:
-            max_id = stored_product.product_id
-
-    product.product_id = max_id + 1
-
-    with open(path, 'a', encoding='utf-8') as file:
-        line = _entity_to_line(product, delimiter)
-        file.write(f'{line}\n')
+    query = f"""
+        INSERT INTO {table} (name, unit_price, discount)
+            VALUES (?, ?, ?)
+    """
+    product.product_id = db.execute(
+        query,
+        (product.name, product.unit_price, product.discount)
+    ).lastrowid
+    db.commit()
 
     return product
 
 
-def _update(product, path, delimiter):
-    products = find_all(path, delimiter)
-    updated_product = None
+def _update(product, table):
+    db = get_db()
 
-    for i in range(len(products)):
-        if products[i].product_id == product.product_id:
-            products[i] = product
-            updated_product = products[i]
-            break
+    query = f"""
+        UPDATE {table} SET
+            name = ?,
+            unit_price = ?,
+            discount = ?
+        WHERE id = ?
+    """
+    rowcount = db.execute(
+        query,
+        (product.name, product.unit_price, product.discount, product.product_id)
+    ).rowcount
 
-    if updated_product is not None:
-        _overwrite(products, path, delimiter)
-
-    return updated_product
-
-
-def _get_path(path=None):
-    return path if path is not None else default_path
-
-
-def _get_delimiter(delimiter=None):
-    return delimiter if delimiter is not None else default_delimiter
+    if rowcount == 1:
+        db.commit()
+        return product
+    else:
+        return None
 
 
-def _overwrite(products, path, delimiter):
-    with open(path, 'w', encoding='utf-8') as file:
-        header = _get_header(delimiter)
-        file.write(f'{header}\n')
-
-        for product in products:
-            line = _entity_to_line(product, delimiter)
-            file.write(f'{line}\n')
+def _get_table(table=None):
+    return table if table is not None else default_table
